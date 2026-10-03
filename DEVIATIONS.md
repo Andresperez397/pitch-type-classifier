@@ -1,6 +1,6 @@
 # Deviations from ANALYSIS_PLAN.md
 
-Every change made after the plan was frozen is logged here, dated, with its reason. Results from the first run are kept in git history (commit `6602a50`).
+Every change made after the plan was frozen is logged here, dated, with its reason. Results from the first run are kept in git history (commit `27eeda4`).
 
 ## D1 (2026-10-02): gradient-boosted trees now run with the plan's fixed settings
 
