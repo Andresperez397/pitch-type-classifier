@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Pitch Types Are Relative: Project Summary</title>
+<style>
+  @page { size: Letter; margin: 0.55in 0.6in; }
+  :root { --ink:#0b0b0b; --ink2:#52514e; --rule:#e4e3df; --accent:#2a78d6; }
+  body { font: 10.2pt/1.42 "Helvetica Neue", Arial, sans-serif; color: var(--ink); margin: 0; background:#fff; }
+  h1 { font-size: 17pt; margin: 0 0 2px; letter-spacing: -0.2px; }
+  .sub { color: var(--ink2); margin: 0 0 10px; }
+  h2 { font-size: 11pt; margin: 14px 0 4px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; }
+  p { margin: 4px 0 6px; }
+  .meta { display:flex; gap:18px; font-size:9pt; color:var(--ink2); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:5px 0; margin-bottom:8px; }
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  ul { margin: 4px 0 6px 16px; padding: 0; } li { margin: 2px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 4px 0; }
+  th, td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--rule); }
+  th { color: var(--ink2); font-weight: 600; } td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.best td { font-weight: 700; }
+  img { width: 100%; display:block; }
+  .cap { font-size: 8.5pt; color: var(--ink2); margin-top: 2px; }
+  .pb { page-break-before: always; }
+  .foot { font-size: 8.3pt; color: var(--ink2); border-top:1px solid var(--rule); margin-top:10px; padding-top:5px; }
+</style></head><body>
+
+<h1>Pitch types are relative</h1>
+<p class="sub">Can MLB's pitch labels be recovered for pitchers a model has never seen, and when the model disagrees, is the model wrong or the label?</p>
+<div class="meta"><span><b>Andres Perez</b>, M.S. Kinesiology (Biomechanics)</span><span>Python · scikit-learn · Streamlit</span><span>Code: github.com/Andresperez397/pitch-type-classifier</span></div>
+
+<div class="grid">
+<div>
+<h2>Data</h2>
+<p>The full 2025 MLB regular season from public Statcast: 712,528 pitches from all 2,430 games, verified against MLB's official schedule. 699,305 pitches from 723 pitchers remain after cleaning. The project rebuilds a 2021 class project with stricter validation.</p>
+<h2>Approach</h2>
+<ul>
+<li><b>Pre-registered:</b> labels, features, models and decision rules were committed to git before any model was fit.</li>
+<li><b>Unseen pitchers:</b> 20% of pitchers held out entirely, 5 repeats.</li>
+<li><b>Pitcher-relative features:</b> each pitch is described against the pitcher's own hardest pitches, without using labels.</li>
+<li><b>Error audit:</b> each miss is compared with what other pitchers' nearby pitches are called.</li>
+</ul>
+</div>
+<div>
+<h2>Findings</h2>
+<ul>
+<li><b>85% accuracy on new pitchers</b> (macro-F1 0.66) with a plain logistic regression. Fastballs and changeups work well; knuckle curves and slurves mostly don't.</li>
+<li><b>Relative features helped logistic regression in 5 of 5 repeats.</b> For boosted trees it was 4 of 5, which doesn't meet the pre-declared rule.</li>
+<li><b>Flexible models didn't transfer:</b> boosted trees trailed logistic regression even when tuned on held-out pitchers.</li>
+<li><b>About two-thirds of the best model's misses sit where other pitchers' pitches carry the model's label.</b> The name depends on who throws the pitch.</li>
+</ul>
+</div>
+</div>
+
+<img src="figures/fig2_confusion.png" alt="Confusion matrix" style="width:64%;margin:0 auto">
+<p class="cap">Row-normalized confusion matrix for held-out pitchers (best model). Most confusion sits at naming boundaries: cutter/four-seam, slider/sweeper/cutter, splitter/changeup, knuckle curve/curveball.</p>
+
+<div class="pb"></div>
+<h2>Model comparison (relative features, held-out pitchers)</h2>
+<table>
+<tr><th>Model</th><th class="n">Accuracy</th><th class="n">Macro-F1</th><th class="n">Log loss</th></tr>
+<tr class="best"><td>Logistic regression</td><td class="n">0.849</td><td class="n">0.660</td><td class="n">0.43</td></tr>
+<tr><td>Boosted trees, plan's fixed settings</td><td class="n">0.807</td><td class="n">0.619</td><td class="n">2.86</td></tr>
+<tr><td>Boosted trees, tuned on held-out pitchers (exploratory)</td><td class="n">0.840</td><td class="n">0.649</td><td class="n">—</td></tr>
+</table>
+<p class="cap">Means over 5 repeats; each repeat holds out a different 20% of pitchers.</p>
+
+<img src="figures/fig4_error_kinds.png" alt="Error kinds">
+<p class="cap">For each misclassified pitch: do most of its 50 nearest pitches from other pitchers carry MLB's label (model error) or the model's label (label ambiguity)?</p>
+
+<div class="grid">
+<div>
+<h2>Instructive cases</h2>
+<ul>
+<li><b>Kenley Jansen:</b> his signature "cutter" is his fastball, and the model reads it as one.</li>
+<li><b>Tyler Rogers (submarine):</b> his 83 mph sinker drops like a curveball. A population model struggles at extreme arm angles.</li>
+</ul>
+</div>
+<div>
+<h2>Why it matters</h2>
+<p>Pitch labels are naming decisions, not physical categories. Models that use labels across pitchers (pitch-type splits, pitch-quality models) inherit that inconsistency. Pitcher-relative descriptions are safer.</p>
+</div>
+</div>
+<h2>Limitations</h2>
+<p>MLB's labels are the target, not ground truth. The analysis covers one season and excludes pitchers with fewer than 100 pitches. The hardest-pitch reference assumes the fastest pitches are fastballs. Slurves and knuckle curves are rare classes.</p>
+<p class="foot">Data: Baseball Savant / Statcast (MLB Advanced Media), public pitch-level data. An interactive arsenal explorer (Streamlit) is included in the repository.</p>
+</body></html>

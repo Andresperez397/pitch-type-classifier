@@ -35,10 +35,10 @@
 
 - With the plan's fixed settings, the trees overfit the training pitchers. The predictions were badly overconfident (log loss 2.9).
 - Choosing the number of rounds on a held-out *group of pitchers* fixed most of that: the trees stopped at about 53 rounds. Logistic regression still won all 5 repeats on both accuracy and macro-F1.
-- What separates pitch types *across* pitchers is close to linear in these features. Extra flexibility mostly learns individual pitchers' naming habits, which don't transfer.
+- This suggests that what separates pitch types *across* pitchers is mostly simple in these features, and that extra flexibility mostly learns individual pitchers' naming habits, which don't transfer.
 
 **4. Many disagreements look like inconsistent labels, not model mistakes.**
-- For each misclassified pitch, I took its 50 nearest neighbors among *other* pitchers' training pitches, in the same feature space. Then I asked whether most of them carry MLB's label or the model's.
+- For each misclassified pitch in the first repeat's test set (141,025 pitches from 145 held-out pitchers), I took its 50 nearest neighbors among *other* pitchers' training pitches, in the same feature space. Then I asked whether most of them carry MLB's label or the model's.
 
 | Model | Errors | Most neighbors carry the model's label (label ambiguity) | Most neighbors carry MLB's label (model error) | Mixed |
 |---|---|---|---|---|
@@ -48,7 +48,7 @@
 - Examples from the best model: of the 1,849 cutters it called four-seamers, 95% sit in neighborhoods where other pitchers' pitches are mostly four-seamers. The same holds for 88% of sliders called sweepers and 81% of splitters called changeups.
 - Knuckle curve vs curveball is largely a grip difference, and ball flight can't see grip.
 - Kenley Jansen shows the cutter/four-seam boundary in its purest form. His signature pitch is labelled a cutter, but it *is* his fastball, and to the model it looks like one: only 18% of his pitches match MLB's labels.
-- One instructive model failure: 708 of the 736 sinkers the model called knuckle curves belong to one submarine pitcher (Tyler Rogers). His 83 mph sinker drops about 13 inches, like a curveball from anyone else. A model trained on the population struggles with extreme arm angles even though arm angle is one of its inputs. A per-pitcher clustering step would handle him naturally.
+- One instructive model failure: 708 of the 736 sinkers the model called knuckle curves belong to one submarine pitcher (Tyler Rogers). His 83 mph sinker drops about 13 inches, like a curveball from anyone else. A model trained on the population struggles with extreme arm angles even though arm angle is one of its inputs. Clustering within each pitcher is the natural next step to test.
 
 ![Confusion matrix](reports/figures/fig2_confusion.png)
 ![Error kinds](reports/figures/fig4_error_kinds.png)
@@ -69,7 +69,7 @@ streamlit run app.py
 
 ## How it was done
 
-- **The plan came first.** [`ANALYSIS_PLAN.md`](ANALYSIS_PLAN.md) fixed the label set, features, models, validation and decision rules. It was committed before the season download finished and before any model was fit. Changes made afterwards, including two problems I found in self-review, are logged in [`DEVIATIONS.md`](DEVIATIONS.md).
+- **The plan came first.** [`ANALYSIS_PLAN.md`](ANALYSIS_PLAN.md) fixed the label set, features, models, validation and decision rules. It was committed before the season download finished and before any model was fit. Changes made afterwards, including problems I found in my own review, are logged in [`DEVIATIONS.md`](DEVIATIONS.md).
 - **Complete data.** Savant caps each export at 25,000 rows, so the fetcher pulls one day per request and fails loudly on the cap or on an error page. It then checks the result against MLB's official schedule: every final game must be present, and no others.
 - **One frame of reference.** Left-handers are mirrored so every pitch is described from the pitcher's side, with arm side positive.
 - **No label leakage.** The pitcher reference uses no labels and is computed separately within the training and test splits.
@@ -82,12 +82,24 @@ streamlit run app.py
   - the error-classification rule and the neighbor lookup
   - boosted trees have no hidden early stopping
 
+## Repository layout
+
+```
+ANALYSIS_PLAN.md      questions, models and decision rules, frozen before modeling
+DEVIATIONS.md         every post-plan change, dated, with its reason
+src/pitchtype/        cleaning, handedness frame and relative features; models and the ambiguity check
+scripts/              fetch_statcast (with schedule check), run_analysis, make_figures, exploratory_tuned_gbm
+app.py                Streamlit arsenal explorer
+tests/                unit tests (pytest)
+reports/              tables and figures
+```
+
 ## Limitations
 
 - **The labels are the target, not ground truth.** MLB's labels come from its pitch-classification system, and pitchers name their own pitches. MLB can also revise labels after the fact, so a later download may differ slightly.
 - **Scope:** one season, and pitchers with fewer than 100 pitches are excluded.
 - **Fragile reference:** the hardest-pitch reference assumes the fastest pitches are fastballs, which can fail for pitchers who rarely throw one.
-- **Position players:** one position player who pitched often in blowouts (103 pitches, under 0.02% of the data) passes the 100-pitch filter. His 55 mph "curveballs" are kept as labelled.
+- **Position players:** one position player (103 pitches, under 0.02% of the data) passes the 100-pitch filter. His 55 mph "curveballs" are kept as labelled.
 - **Rare classes:** slurves (0.5% of pitches) and knuckle curves (1.8%) are rare. Their low F1 partly reflects that, though the confusion matrix shows naming overlap with curveballs and sweepers is the bigger factor.
 
 ## Reproduce
