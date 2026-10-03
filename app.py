@@ -31,7 +31,7 @@ def movement_plot(df: pd.DataFrame, col: str, title: str):
                    label=f"{lab} ({len(g)})", edgecolors="none")
     ax.axhline(0, color="#c3c2b7", lw=1)
     ax.axvline(0, color="#c3c2b7", lw=1)
-    ax.set_xlabel("Horizontal break, in (arm side +, mirrored to RHP view)")
+    ax.set_xlabel("Horizontal break, in (arm side +, pitcher's view)")
     ax.set_ylabel("Induced vertical break, in")
     ax.set_title(title, loc="left", fontweight="bold")
     ax.legend(frameon=False, fontsize=8, loc="best")
@@ -42,7 +42,8 @@ def movement_plot(df: pd.DataFrame, col: str, title: str):
 st.set_page_config(page_title="Pitch Types Are Relative", layout="wide")
 st.title("Pitch types are relative")
 st.caption("2025 MLB regular season (public Statcast). Every pitcher shown here was held out of "
-           "training. Model: gradient-boosted trees on pitcher-relative features.")
+           "training. Model: multinomial logistic regression on pitcher-relative features, "
+           "the best of the models compared (see the README).")
 
 if not DATA.exists():
     st.error("Run `python scripts/run_analysis.py` first to create the predictions file.")

@@ -35,9 +35,15 @@ def clean(raw: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 def absolute_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Mirror left-handers so every pitch is described as if thrown right-handed."""
+    """Describe every pitch from the pitcher's side, with arm side positive.
+
+    Statcast's x axis is the catcher's view (third-base side negative), so a right-hander's
+    arm-side movement and release side are negative. Multiplying by -1 for right-handers and +1
+    for left-handers puts both hands in one frame where arm side is positive. Spin axis is
+    mirrored for left-handers (360 - axis) into the right-hander frame.
+    """
     lefty = (df["p_throws"] == "L").to_numpy()
-    sign = np.where(lefty, -1.0, 1.0)
+    sign = np.where(lefty, 1.0, -1.0)
     axis = np.where(lefty, 360.0 - df["spin_axis"], df["spin_axis"])
     out = pd.DataFrame(index=df.index)
     out["velo"] = df["release_speed"]

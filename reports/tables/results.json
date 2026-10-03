@@ -26,16 +26,31 @@
       "relative_better": true
     },
     "gbm": {
-      "wins": 5,
-      "mean_gain": 0.025628006495664636,
-      "relative_better": true
+      "wins": 4,
+      "mean_gain": 0.018262118856380537,
+      "relative_better": false
     }
   },
   "q3_error_kinds": {
-    "ambiguous_label": 0.6623136848741388,
-    "model_error": 0.21236547034718783,
-    "mixed": 0.1253208447786734
+    "n_errors": 26668,
+    "ambiguous_label": 0.5210739463026849,
+    "model_error": 0.34329533523323835,
+    "mixed": 0.1356307184640768
   },
-  "n_errors_seed0": 22207,
-  "runtime_s": 191.8
+  "n_errors_seed0": 26668,
+  "q3_error_kinds_by_model": {
+    "gbm": {
+      "n_errors": 26668,
+      "ambiguous_label": 0.5210739463026849,
+      "model_error": 0.34329533523323835,
+      "mixed": 0.1356307184640768
+    },
+    "logistic": {
+      "n_errors": 20365,
+      "ambiguous_label": 0.6404615762337343,
+      "model_error": 0.22440461576233733,
+      "mixed": 0.1351338080039283
+    }
+  },
+  "runtime_s": 570.0
 }

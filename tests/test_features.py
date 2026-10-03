@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from pitchtype import features as F  # noqa: E402
@@ -28,6 +27,12 @@ def test_mirroring_makes_lefty_match_righty():
     l = F.absolute_features(lraw)
     for c in ["hb_in", "rel_side", "axis_deg", "axis_sin", "axis_cos"]:
         assert np.allclose(r[c], l[c]), c
+
+
+def test_arm_side_is_positive():
+    # A right-hander's fastball runs toward third base from the catcher's view (pfx_x < 0).
+    f = F.absolute_features(_raw(hand="R"))
+    assert (f["hb_in"] > 0).all() and (f["rel_side"] > 0).all()
 
 
 def test_clean_merges_drops_and_logs():

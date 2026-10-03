@@ -1,8 +1,8 @@
-pandas
-numpy
-scikit-learn
-matplotlib
-pyarrow
-certifi
-pytest
-streamlit
+pandas==3.0.6
+numpy==2.4.6
+scikit-learn==1.9.1
+matplotlib==3.11.2
+pyarrow==25.0.1
+certifi==2026.7.22
+pytest==9.1.1
+streamlit==1.65.0
