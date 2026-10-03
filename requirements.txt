@@ -1,0 +1,8 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+pyarrow
+certifi
+pytest
+streamlit
