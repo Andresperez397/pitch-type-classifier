@@ -1,0 +1,39 @@
+{
+  "coverage": {
+    "games": 2430,
+    "pitches_raw": 712528,
+    "pitches_clean": 699305,
+    "pitchers_clean": 723
+  },
+  "four_seam_medians_by_hand_after_mirroring": {
+    "L": {
+      "rel_side": 2.06,
+      "hb_in": 8.04,
+      "axis_deg": 215.0
+    },
+    "R": {
+      "rel_side": 1.84,
+      "hb_in": 7.8,
+      "axis_deg": 214.0
+    }
+  },
+  "reference_composition": {
+    "FF": 0.7169,
+    "SI": 0.2701,
+    "FC": 0.0128,
+    "CU": 0.0001,
+    "CH": 0.0
+  },
+  "reference_fastball_share": 0.9998,
+  "pitchers_with_non_fastball_reference": 1,
+  "majority_baseline_accuracy": {
+    "per_repeat": [
+      0.3069,
+      0.286,
+      0.335,
+      0.3138,
+      0.3374
+    ],
+    "mean": 0.3158
+  }
+}

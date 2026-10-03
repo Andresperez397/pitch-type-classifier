@@ -12,7 +12,7 @@
 
 **1. About 85% of pitches are recovered for brand-new pitchers, but the average hides a lot.**
 - Validation holds out 20% of pitchers entirely, 5 repeats.
-- The best model is a plain multinomial logistic regression on pitcher-relative features: accuracy 0.849 (SD 0.009), macro-F1 0.660 (SD 0.017), log loss 0.43.
+- The best model is a plain multinomial logistic regression on pitcher-relative features: accuracy 0.849 (SD 0.009), macro-F1 0.660 (SD 0.017), log loss 0.43. For scale, always guessing "four-seam" scores 0.316 on the same held-out pitchers.
 - Four-seamers, sinkers and changeups are recovered well (F1 0.87 to 0.96).
 - Splitters (0.56), knuckle curves (0.22) and slurves (≈ 0) mostly are not.
 
@@ -23,7 +23,7 @@
 - For logistic regression they raised macro-F1 in **5 of 5** repeats (+0.023), which meets the pre-declared rule.
 - The share of pitchers whose whole arsenal is classified at least 95% correctly rose from 21% to 30%.
 - For the gradient-boosted trees the gain was smaller and won only **4 of 5** repeats (+0.018). Under the same rule, that does *not* count as a finding.
-- The reference is label-free (each pitcher's top 10% of velocities), so it works for a pitcher the model has never seen.
+- The reference is label-free (each pitcher's top 10% of velocities), so it works for a pitcher the model has never seen, given a reasonable sample of that pitcher's pitches (every pitcher here has at least 100). In this data the reference pitches are 99.98% fastballs (71.7% four-seam, 27.0% sinker, 1.3% cutter).
 
 **3. Flexible models did not help. Logistic regression beat gradient-boosted trees, tuned or not.**
 
@@ -71,7 +71,7 @@ streamlit run app.py
 
 - **The plan came first.** [`ANALYSIS_PLAN.md`](ANALYSIS_PLAN.md) fixed the label set, features, models, validation and decision rules. It was committed before the season download finished and before any model was fit. Changes made afterwards, including problems I found in my own review, are logged in [`DEVIATIONS.md`](DEVIATIONS.md).
 - **Complete data.** Savant caps each export at 25,000 rows, so the fetcher pulls one day per request and fails loudly on the cap or on an error page. It then checks the result against MLB's official schedule: every final game must be present, and no others.
-- **One frame of reference.** Left-handers are mirrored so every pitch is described from the pitcher's side, with arm side positive.
+- **One frame of reference.** Left-handers are mirrored so every pitch is described from the pitcher's side, with arm side positive. Checked in the data: after mirroring, left- and right-handed four-seamers match (median release side 2.1 vs 1.8 ft, horizontal break 8.0 vs 7.8 in, spin axis 215° vs 214°).
 - **No label leakage.** The pitcher reference uses no labels and is computed separately within the training and test splits.
 - **Honest validation.** GroupShuffleSplit by pitcher, 5 repeats, with the training set subsampled to 250k pitches. Metrics are accuracy, macro-F1, log loss, per-class F1 and a pitcher-level "whole arsenal" rate.
 - **No hidden tuning on seen pitchers.** scikit-learn's boosted trees early-stop on a random 10% of rows by default. That would tune the model on pitchers it trains on, so it's switched off (and tested). The exploratory tuned version holds out whole pitchers instead.
@@ -88,7 +88,7 @@ streamlit run app.py
 ANALYSIS_PLAN.md      questions, models and decision rules, frozen before modeling
 DEVIATIONS.md         every post-plan change, dated, with its reason
 src/pitchtype/        cleaning, handedness frame and relative features; models and the ambiguity check
-scripts/              fetch_statcast (with schedule check), run_analysis, make_figures, exploratory_tuned_gbm
+scripts/              fetch_statcast (with schedule check), run_analysis, make_figures, data_checks, exploratory_tuned_gbm
 app.py                Streamlit arsenal explorer
 tests/                unit tests (pytest)
 reports/              tables and figures
@@ -98,7 +98,7 @@ reports/              tables and figures
 
 - **The labels are the target, not ground truth.** MLB's labels come from its pitch-classification system, and pitchers name their own pitches. MLB can also revise labels after the fact, so a later download may differ slightly.
 - **Scope:** one season, and pitchers with fewer than 100 pitches are excluded.
-- **Fragile reference:** the hardest-pitch reference assumes the fastest pitches are fastballs, which can fail for pitchers who rarely throw one.
+- **Fragile reference:** the hardest-pitch reference assumes the fastest pitches are fastballs. That held for 722 of 723 pitchers here, but it can fail for pitchers who rarely throw a fastball, and it needs enough of a pitcher's pitches to be stable.
 - **Position players:** one position player (103 pitches, under 0.02% of the data) passes the 100-pitch filter. His 55 mph "curveballs" are kept as labelled.
 - **Rare classes:** slurves (0.5% of pitches) and knuckle curves (1.8%) are rare. Their low F1 partly reflects that, though the confusion matrix shows naming overlap with curveballs and sweepers is the bigger factor.
 
@@ -112,6 +112,7 @@ pip install -r requirements.txt
 python scripts/fetch_statcast.py --season 2025     # about 30 min, polite one-day requests
 python scripts/run_analysis.py                     # about 10 min on a laptop
 python scripts/make_figures.py
+python scripts/data_checks.py                      # descriptive checks quoted above
 python scripts/exploratory_tuned_gbm.py            # optional, about 10 min
 pytest -q
 streamlit run app.py

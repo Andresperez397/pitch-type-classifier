@@ -41,7 +41,7 @@
 <div>
 <h2>Findings</h2>
 <ul>
-<li><b>85% accuracy on new pitchers</b> (macro-F1 0.66) with a plain logistic regression. Fastballs and changeups work well; knuckle curves and slurves mostly don't.</li>
+<li><b>85% accuracy on new pitchers</b> (macro-F1 0.66; always guessing four-seam: 32%) with a plain logistic regression. Fastballs and changeups work well; knuckle curves and slurves mostly don't.</li>
 <li><b>Relative features helped logistic regression in 5 of 5 repeats.</b> For boosted trees it was 4 of 5, which doesn't meet the pre-declared rule.</li>
 <li><b>Flexible models didn't transfer:</b> boosted trees trailed logistic regression even when tuned on held-out pitchers.</li>
 <li><b>About two-thirds of the best model's misses sit where other pitchers' pitches carry the model's label.</b> The name depends on who throws the pitch.</li>
