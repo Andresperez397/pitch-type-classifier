@@ -61,7 +61,7 @@ A pitch label is a pitcher's own naming decision, not a physical category. That'
 
 ## Interactive app
 
-`app.py` (Streamlit) lets you pick any held-out pitcher and compare MLB's labels with the model's (logistic regression) in movement space, side by side. A table lists the disagreements. Sort by "most disagreement" to find the interesting arsenals.
+**Live app:** *link added once deployed.* `app.py` (Streamlit) lets you pick any held-out pitcher and compare MLB's labels with the model's (logistic regression) in movement space, side by side. A table lists the disagreements. Sort by "most disagreement" to find the interesting arsenals.
 
 ```bash
 streamlit run app.py
@@ -117,4 +117,4 @@ pytest -q
 streamlit run app.py
 ```
 
-Data: Baseball Savant / Statcast (MLB Advanced Media), public pitch-level data, not redistributed here. Code: MIT.
+Data: Baseball Savant / Statcast (MLB Advanced Media), public pitch-level data. The raw data are not redistributed; the repo includes one small derived file (`data/processed/test_predictions_seed0.parquet`, held-out pitchers' summary values and model labels) so the app runs without the download. Code: MIT.

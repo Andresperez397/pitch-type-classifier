@@ -3,5 +3,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/test_predictions_seed0.parquet
 .DS_Store
