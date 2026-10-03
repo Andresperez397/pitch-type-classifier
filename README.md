@@ -61,7 +61,7 @@ A pitch label is a pitcher's own naming decision, not a physical category. That'
 
 ## Interactive app
 
-**Live app:** *link added once deployed.* `app.py` (Streamlit) lets you pick any held-out pitcher and compare MLB's labels with the model's (logistic regression) in movement space, side by side. A table lists the disagreements. Sort by "most disagreement" to find the interesting arsenals.
+**Live app:** [pitch-types-are-relative.streamlit.app](https://pitch-types-are-relative.streamlit.app). `app.py` (Streamlit) lets you pick any held-out pitcher and compare MLB's labels with the model's (logistic regression) in movement space, side by side. A table lists the disagreements. Sort by "most disagreement" to find the interesting arsenals.
 
 ```bash
 streamlit run app.py
