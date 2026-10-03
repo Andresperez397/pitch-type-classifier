@@ -1,0 +1,41 @@
+{
+  "cleaning": {
+    "rows_in": 712528,
+    "dropped_label": 5417,
+    "dropped_missing": 2909,
+    "dropped_low_volume_pitchers": 4897,
+    "rows_out": 699305,
+    "pitchers_out": 723,
+    "label_counts": {
+      "FF": 223720,
+      "SI": 108972,
+      "SL": 101238,
+      "CH": 72550,
+      "ST": 53850,
+      "FC": 52471,
+      "CU": 47397,
+      "FS": 22950,
+      "KC": 12619,
+      "SV": 3538
+    }
+  },
+  "q2": {
+    "logistic": {
+      "wins": 5,
+      "mean_gain": 0.023257687968984662,
+      "relative_better": true
+    },
+    "gbm": {
+      "wins": 5,
+      "mean_gain": 0.025628006495664636,
+      "relative_better": true
+    }
+  },
+  "q3_error_kinds": {
+    "ambiguous_label": 0.6623136848741388,
+    "model_error": 0.21236547034718783,
+    "mixed": 0.1253208447786734
+  },
+  "n_errors_seed0": 22207,
+  "runtime_s": 191.8
+}

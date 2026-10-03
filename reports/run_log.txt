@@ -1,0 +1,102 @@
+{
+  "rows_in": 712528,
+  "dropped_label": 5417,
+  "dropped_missing": 2909,
+  "dropped_low_volume_pitchers": 4897,
+  "rows_out": 699305,
+  "pitchers_out": 723,
+  "label_counts": {
+    "FF": 223720,
+    "SI": 108972,
+    "SL": 101238,
+    "CH": 72550,
+    "ST": 53850,
+    "FC": 52471,
+    "CU": 47397,
+    "FS": 22950,
+    "KC": 12619,
+    "SV": 3538
+  }
+}
+seed 0 A_absolute logistic: acc 0.823 macroF1 0.637
+seed 0 A_absolute gbm: acc 0.811 macroF1 0.620
+seed 0 B_relative logistic: acc 0.856 macroF1 0.685
+seed 0 B_relative gbm: acc 0.843 macroF1 0.660
+seed 1 A_absolute logistic: acc 0.818 macroF1 0.623
+seed 1 A_absolute gbm: acc 0.805 macroF1 0.606
+seed 1 B_relative logistic: acc 0.834 macroF1 0.639
+seed 1 B_relative gbm: acc 0.820 macroF1 0.616
+seed 2 A_absolute logistic: acc 0.837 macroF1 0.656
+seed 2 A_absolute gbm: acc 0.830 macroF1 0.652
+seed 2 B_relative logistic: acc 0.855 macroF1 0.661
+seed 2 B_relative gbm: acc 0.853 macroF1 0.656
+seed 3 A_absolute logistic: acc 0.817 macroF1 0.619
+seed 3 A_absolute gbm: acc 0.802 macroF1 0.606
+seed 3 B_relative logistic: acc 0.854 macroF1 0.651
+seed 3 B_relative gbm: acc 0.851 macroF1 0.653
+seed 4 A_absolute logistic: acc 0.828 macroF1 0.650
+seed 4 A_absolute gbm: acc 0.813 macroF1 0.622
+seed 4 B_relative logistic: acc 0.847 macroF1 0.665
+seed 4 B_relative gbm: acc 0.837 macroF1 0.650
+                    accuracy         macro_f1         log_loss        
+                        mean     std     mean     std     mean     std
+features   model                                                      
+A_absolute gbm        0.8121  0.0108   0.6213  0.0189   0.6687  0.1878
+           logistic   0.8247  0.0083   0.6371  0.0161   0.4934  0.0651
+B_relative gbm        0.8408  0.0133   0.6469  0.0179   0.5163  0.0729
+           logistic   0.8490  0.0093   0.6604  0.0171   0.4292  0.0404
+{
+  "cleaning": {
+    "rows_in": 712528,
+    "dropped_label": 5417,
+    "dropped_missing": 2909,
+    "dropped_low_volume_pitchers": 4897,
+    "rows_out": 699305,
+    "pitchers_out": 723,
+    "label_counts": {
+      "FF": 223720,
+      "SI": 108972,
+      "SL": 101238,
+      "CH": 72550,
+      "ST": 53850,
+      "FC": 52471,
+      "CU": 47397,
+      "FS": 22950,
+      "KC": 12619,
+      "SV": 3538
+    }
+  },
+  "q2": {
+    "logistic": {
+      "wins": 5,
+      "mean_gain": 0.023257687968984662,
+      "relative_better": true
+    },
+    "gbm": {
+      "wins": 5,
+      "mean_gain": 0.025628006495664636,
+      "relative_better": true
+    }
+  },
+  "q3_error_kinds": {
+    "ambiguous_label": 0.6623136848741388,
+    "model_error": 0.21236547034718783,
+    "mixed": 0.1253208447786734
+  },
+  "n_errors_seed0": 22207,
+  "runtime_s": 191.8
+}
+              n  model_error  ambiguous
+true pred                              
+SL   FC    2851        0.330      0.622
+FC   FF    2287        0.030      0.957
+     SL    1901        0.161      0.800
+SL   ST    1869        0.060      0.854
+SI   FF    1751        0.412      0.575
+ST   SL    1665        0.117      0.663
+FS   CH    1646        0.180      0.776
+KC   CU    1075        0.070      0.714
+FF   SI     928        0.267      0.709
+CU   KC     811        0.618      0.289
+CH   FS     735        0.516      0.454
+KC   SL     678        0.006      0.727
