@@ -9,7 +9,7 @@
   .sub { color: var(--ink2); margin: 0 0 10px; }
   h2 { font-size: 11pt; margin: 14px 0 4px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; }
   p { margin: 4px 0 6px; }
-  .meta { display:flex; gap:18px; font-size:9pt; color:var(--ink2); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:5px 0; margin-bottom:8px; }
+  .meta { display:flex; flex-wrap:wrap; gap:4px 18px; font-size:9pt; color:var(--ink2); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:5px 0; margin-bottom:8px; }
   .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   ul { margin: 4px 0 6px 16px; padding: 0; } li { margin: 2px 0; }
   table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 4px 0; }
@@ -20,11 +20,12 @@
   .cap { font-size: 8.5pt; color: var(--ink2); margin-top: 2px; }
   .pb { page-break-before: always; }
   .foot { font-size: 8.3pt; color: var(--ink2); border-top:1px solid var(--rule); margin-top:10px; padding-top:5px; }
+  .meta a, .foot a { color: inherit; text-decoration: none; }
 </style></head><body>
 
 <h1>Pitch types are relative</h1>
 <p class="sub">Can MLB's pitch labels be recovered for pitchers a model has never seen, and when the model disagrees, is the model wrong or the label?</p>
-<div class="meta"><span><b>Andres Perez</b>, M.S. Kinesiology (Biomechanics)</span><span>Python · scikit-learn · Streamlit</span><span>Code: github.com/Andresperez397/pitch-type-classifier</span></div>
+<div class="meta"><span><b>Andres Perez</b>, M.S. Kinesiology (Biomechanics)</span><span>Python · scikit-learn · Streamlit</span><span>Code: <a href="https://github.com/Andresperez397/pitch-type-classifier">github.com/Andresperez397/pitch-type-classifier</a></span><span>Live app: <a href="https://pitch-types-are-relative.streamlit.app">pitch-types-are-relative.streamlit.app</a></span></div>
 
 <div class="grid">
 <div>
@@ -80,5 +81,5 @@
 </div>
 <h2>Limitations</h2>
 <p>MLB's labels are the target, not ground truth. The analysis covers one season and excludes pitchers with fewer than 100 pitches. The hardest-pitch reference assumes the fastest pitches are fastballs. Slurves and knuckle curves are rare classes.</p>
-<p class="foot">Data: Baseball Savant / Statcast (MLB Advanced Media), public pitch-level data. An interactive arsenal explorer (Streamlit) is included in the repository.</p>
+<p class="foot">Data: Baseball Savant / Statcast (MLB Advanced Media), public pitch-level data. Interactive arsenal explorer: <a href="https://pitch-types-are-relative.streamlit.app">pitch-types-are-relative.streamlit.app</a>.</p>
 </body></html>
