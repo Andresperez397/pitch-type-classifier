@@ -1,5 +1,7 @@
 # Pitch types are relative
 
+[![tests](https://github.com/Andresperez397/pitch-type-classifier/actions/workflows/ci.yml/badge.svg)](https://github.com/Andresperez397/pitch-type-classifier/actions/workflows/ci.yml)
+
 **What it is:** a classifier that recovers MLB's pitch-type labels from ball flight, for pitchers the model has never seen. When it disagrees with MLB, it checks whether the model is wrong or the label is.
 
 **Data:** the full 2025 MLB regular season from public Statcast. That's 712,528 pitches from all 2,430 games, verified against MLB's official schedule; 699,305 pitches from 723 pitchers remain after cleaning.
@@ -75,7 +77,7 @@ streamlit run app.py
 - **No label leakage.** The pitcher reference uses no labels and is computed separately within the training and test splits.
 - **Honest validation.** GroupShuffleSplit by pitcher, 5 repeats, with the training set subsampled to 250k pitches. Metrics are accuracy, macro-F1, log loss, per-class F1 and a pitcher-level "whole arsenal" rate.
 - **No hidden tuning on seen pitchers.** scikit-learn's boosted trees early-stop on a random 10% of rows by default. That would tune the model on pitchers it trains on, so it's switched off (and tested). The exploratory tuned version holds out whole pitchers instead.
-- **Tests (7).** `tests/` checks:
+- **Tests (7).** CI runs all 7 on every push. `tests/` checks:
   - left-hander mirroring and the arm-side-positive convention
   - cleaning merges, drops and logs correctly
   - relative features ignore labels and handle the 0°/360° spin-axis wrap
