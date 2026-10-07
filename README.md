@@ -2,6 +2,14 @@
 
 [![tests](https://github.com/Andresperez397/pitch-type-classifier/actions/workflows/ci.yml/badge.svg)](https://github.com/Andresperez397/pitch-type-classifier/actions/workflows/ci.yml)
 
+## At a glance
+
+- **Question:** Can MLB's pitch labels be recovered from ball flight for pitchers the model has never seen, and when the model disagrees with MLB, which one is wrong?
+- **Answer:** A plain logistic regression on pitcher-relative features recovers 85% of pitches for new pitchers (macro-F1 0.66). Of its errors, 64% sit where other pitchers' similar pitches carry the model's label: the label is ambiguous, not the model wrong.
+- **Why it matters:** A pitch label is a pitcher's own naming decision. Models that use labels as inputs across pitchers (pitch splits, pitch-quality models) inherit that noise.
+- **Start here:** [Live app](https://pitch-types-are-relative.streamlit.app) · [two-page summary](reports/Pitch%20Types%20Are%20Relative%20-%20Summary.pdf)
+
+
 **What it is:** a classifier that recovers MLB's pitch-type labels from ball flight, for pitchers the model has never seen. When it disagrees with MLB, it checks whether the model is wrong or the label is.
 
 **Data:** the full 2025 MLB regular season from public Statcast. That's 712,528 pitches from all 2,430 games, verified against MLB's official schedule; 699,305 pitches from 723 pitchers remain after cleaning.
