@@ -5,6 +5,7 @@ Same 5 pitcher splits and training subsample as run_analysis.py, relative featur
 the number of boosting rounds is chosen by early stopping on a validation set of *held-out
 training pitchers* (15% of training pitchers), never on pitches from pitchers the model trains on.
 """
+
 from __future__ import annotations
 
 import json
@@ -39,15 +40,26 @@ def main() -> None:
         y_sub = tr_sub["label"].to_numpy()
         inner = GroupShuffleSplit(n_splits=1, test_size=0.15, random_state=seed)
         fit_i, val_i = next(inner.split(X_sub, groups=tr_sub["pitcher"]))
-        model = HistGradientBoostingClassifier(max_depth=8, learning_rate=0.1, max_iter=1000,
-                                               early_stopping=True, n_iter_no_change=20,
-                                               scoring="loss", random_state=0)
+        model = HistGradientBoostingClassifier(
+            max_depth=8,
+            learning_rate=0.1,
+            max_iter=1000,
+            early_stopping=True,
+            n_iter_no_change=20,
+            scoring="loss",
+            random_state=0,
+        )
         model.fit(X_sub[fit_i], y_sub[fit_i], X_val=X_sub[val_i], y_val=y_sub[val_i])
         pred = model.predict(Xte[cols].to_numpy())
         yte = test["label"].to_numpy()
-        rows.append({"seed": seed, "n_iter": int(model.n_iter_),
-                     "accuracy": accuracy_score(yte, pred),
-                     "macro_f1": f1_score(yte, pred, average="macro")})
+        rows.append(
+            {
+                "seed": seed,
+                "n_iter": int(model.n_iter_),
+                "accuracy": accuracy_score(yte, pred),
+                "macro_f1": f1_score(yte, pred, average="macro"),
+            }
+        )
         print(rows[-1], flush=True)
     out = pd.DataFrame(rows)
     out.to_csv(ROOT / "reports" / "tables" / "exploratory_tuned_gbm.csv", index=False)

@@ -10,12 +10,22 @@ from pitchtype import features as F  # noqa: E402
 
 def _raw(n=120, hand="R", pitcher=1, label="FF"):
     rng = np.random.default_rng(pitcher)
-    return pd.DataFrame({
-        "pitcher": pitcher, "p_throws": hand, "pitch_type": label,
-        "release_speed": rng.normal(94, 1, n), "release_spin_rate": rng.normal(2300, 50, n),
-        "spin_axis": np.full(n, 200.0), "pfx_x": np.full(n, -0.7), "pfx_z": np.full(n, 1.3),
-        "release_pos_x": np.full(n, -2.0), "release_pos_z": np.full(n, 5.8),
-        "release_extension": np.full(n, 6.3), "arm_angle": np.full(n, 40.0)})
+    return pd.DataFrame(
+        {
+            "pitcher": pitcher,
+            "p_throws": hand,
+            "pitch_type": label,
+            "release_speed": rng.normal(94, 1, n),
+            "release_spin_rate": rng.normal(2300, 50, n),
+            "spin_axis": np.full(n, 200.0),
+            "pfx_x": np.full(n, -0.7),
+            "pfx_z": np.full(n, 1.3),
+            "release_pos_x": np.full(n, -2.0),
+            "release_pos_z": np.full(n, 5.8),
+            "release_extension": np.full(n, 6.3),
+            "arm_angle": np.full(n, 40.0),
+        }
+    )
 
 
 def test_mirroring_makes_lefty_match_righty():
@@ -36,8 +46,7 @@ def test_arm_side_is_positive():
 
 
 def test_clean_merges_drops_and_logs():
-    raw = pd.concat([_raw(label="FF"), _raw(n=5, label="PO"), _raw(n=5, label="CS"),
-                     _raw(n=50, pitcher=2)])
+    raw = pd.concat([_raw(label="FF"), _raw(n=5, label="PO"), _raw(n=5, label="CS"), _raw(n=50, pitcher=2)])
     df, log = F.clean(raw)
     assert set(df["label"]) == {"FF", "CU"}
     assert log["dropped_label"] == 5

@@ -6,6 +6,7 @@
 - majority-class baseline: accuracy of always predicting the most common training label on the
   same 5 held-out pitcher splits used in run_analysis.py
 """
+
 from __future__ import annotations
 
 import json
@@ -27,8 +28,14 @@ def main() -> None:
     raw = pd.read_parquet(ROOT / "data" / "raw" / f"statcast_{SEASON}.parquet")
     df, _ = F.clean(raw)
     a = F.absolute_features(df)
-    out: dict = {"coverage": {"games": int(raw["game_pk"].nunique()), "pitches_raw": len(raw),
-                              "pitches_clean": len(df), "pitchers_clean": int(df["pitcher"].nunique())}}
+    out: dict = {
+        "coverage": {
+            "games": int(raw["game_pk"].nunique()),
+            "pitches_raw": len(raw),
+            "pitches_clean": len(df),
+            "pitchers_clean": int(df["pitcher"].nunique()),
+        }
+    }
 
     ff = df["label"] == "FF"
     med = a[ff].groupby(df.loc[ff, "p_throws"])[["rel_side", "hb_in", "axis_deg"]].median()
@@ -47,8 +54,10 @@ def main() -> None:
     for tr, te in splitter.split(df, groups=df["pitcher"]):
         majority = df.iloc[tr]["label"].value_counts().index[0]
         accs.append(float((df.iloc[te]["label"] == majority).mean()))
-    out["majority_baseline_accuracy"] = {"per_repeat": [round(x, 4) for x in accs],
-                                         "mean": round(float(np.mean(accs)), 4)}
+    out["majority_baseline_accuracy"] = {
+        "per_repeat": [round(x, 4) for x in accs],
+        "mean": round(float(np.mean(accs)), 4),
+    }
 
     path = ROOT / "reports" / "tables" / "data_checks.json"
     with open(path, "w") as f:

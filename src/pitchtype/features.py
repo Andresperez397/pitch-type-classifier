@@ -1,4 +1,5 @@
 """Cleaning, handedness mirroring and label-free pitcher-relative features (ANALYSIS_PLAN.md 2-3)."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -9,10 +10,29 @@ MERGE = {"CS": "CU"}
 MIN_PITCHES = 100
 REF_QUANTILE = 0.90
 
-RAW_NEEDED = ["release_speed", "release_spin_rate", "spin_axis", "pfx_x", "pfx_z",
-              "release_pos_x", "release_pos_z", "release_extension", "arm_angle"]
-ABSOLUTE = ["velo", "spin", "axis_sin", "axis_cos", "hb_in", "ivb_in", "rel_side", "rel_height",
-            "extension", "arm_angle"]
+RAW_NEEDED = [
+    "release_speed",
+    "release_spin_rate",
+    "spin_axis",
+    "pfx_x",
+    "pfx_z",
+    "release_pos_x",
+    "release_pos_z",
+    "release_extension",
+    "arm_angle",
+]
+ABSOLUTE = [
+    "velo",
+    "spin",
+    "axis_sin",
+    "axis_cos",
+    "hb_in",
+    "ivb_in",
+    "rel_side",
+    "rel_height",
+    "extension",
+    "arm_angle",
+]
 RELATIVE = ["d_velo", "d_hb", "d_ivb", "d_spin", "d_axis"]
 
 
@@ -70,9 +90,14 @@ def relative_features(feat: pd.DataFrame, pitcher: pd.Series) -> pd.DataFrame:
     f["pitcher"] = pitcher.to_numpy()
     cut = f.groupby("pitcher")["velo"].transform(lambda v: v.quantile(REF_QUANTILE))
     hard = f[f["velo"] >= cut]
-    ref = hard.groupby("pitcher").agg(r_velo=("velo", "mean"), r_hb=("hb_in", "mean"),
-                                      r_ivb=("ivb_in", "mean"), r_spin=("spin", "mean"),
-                                      r_sin=("axis_sin", "mean"), r_cos=("axis_cos", "mean"))
+    ref = hard.groupby("pitcher").agg(
+        r_velo=("velo", "mean"),
+        r_hb=("hb_in", "mean"),
+        r_ivb=("ivb_in", "mean"),
+        r_spin=("spin", "mean"),
+        r_sin=("axis_sin", "mean"),
+        r_cos=("axis_cos", "mean"),
+    )
     r = ref.loc[f["pitcher"]].set_index(f.index)
     ref_axis = np.rad2deg(np.arctan2(r["r_sin"], r["r_cos"])) % 360
     out = feat.copy()

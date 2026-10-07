@@ -1,4 +1,5 @@
 """Run the pre-specified analysis in ANALYSIS_PLAN.md (Q1-Q3) and write tables to reports/tables/."""
+
 from __future__ import annotations
 
 import json
@@ -51,23 +52,41 @@ def main() -> None:
                 proba = model.predict_proba(Xte_all[cols].to_numpy())
                 classes = list(model.classes_)
                 pred = np.array(classes)[proba.argmax(1)]
-                rows.append({"seed": seed, "features": set_name, "model": kind,
-                             "accuracy": accuracy_score(yte, pred),
-                             "macro_f1": f1_score(yte, pred, average="macro"),
-                             "log_loss": log_loss(yte, proba, labels=classes),
-                             "n_train": len(sub), "n_test": len(yte),
-                             "test_pitchers": test["pitcher"].nunique()})
+                rows.append(
+                    {
+                        "seed": seed,
+                        "features": set_name,
+                        "model": kind,
+                        "accuracy": accuracy_score(yte, pred),
+                        "macro_f1": f1_score(yte, pred, average="macro"),
+                        "log_loss": log_loss(yte, proba, labels=classes),
+                        "n_train": len(sub),
+                        "n_test": len(yte),
+                        "test_pitchers": test["pitcher"].nunique(),
+                    }
+                )
                 f1s = f1_score(yte, pred, average=None, labels=LABELS)
-                per_class += [{"seed": seed, "features": set_name, "model": kind, "label": lab,
-                               "f1": f} for lab, f in zip(LABELS, f1s, strict=True)]
+                per_class += [
+                    {"seed": seed, "features": set_name, "model": kind, "label": lab, "f1": f}
+                    for lab, f in zip(LABELS, f1s, strict=True)
+                ]
                 acc_p = pd.Series(pred == yte).groupby(test["pitcher"].to_numpy()).mean()
-                pitcher_rows.append({"seed": seed, "features": set_name, "model": kind,
-                                     "share_pitchers_ge95": float((acc_p >= 0.95).mean()),
-                                     "median_pitcher_acc": float(acc_p.median())})
+                pitcher_rows.append(
+                    {
+                        "seed": seed,
+                        "features": set_name,
+                        "model": kind,
+                        "share_pitchers_ge95": float((acc_p >= 0.95).mean()),
+                        "median_pitcher_acc": float(acc_p.median()),
+                    }
+                )
                 if seed == 0:
                     seed0[(set_name, kind)] = (pred, proba, classes)
-                print(f"seed {seed} {set_name} {kind}: acc {rows[-1]['accuracy']:.3f} "
-                      f"macroF1 {rows[-1]['macro_f1']:.3f}", flush=True)
+                print(
+                    f"seed {seed} {set_name} {kind}: acc {rows[-1]['accuracy']:.3f} "
+                    f"macroF1 {rows[-1]['macro_f1']:.3f}",
+                    flush=True,
+                )
         if seed == 0:
             test0, Xtr0, Xte0, sub0, ytr0 = test, Xtr_all, Xte_all, sub, ytr
 
@@ -86,8 +105,11 @@ def main() -> None:
     for kind in ("logistic", "gbm"):
         a = res[(res.model == kind) & (res.features == "A_absolute")].set_index("seed")["macro_f1"]
         b = res[(res.model == kind) & (res.features == "B_relative")].set_index("seed")["macro_f1"]
-        q2[kind] = {"wins": int((b > a).sum()), "mean_gain": float((b - a).mean()),
-                    "relative_better": bool((b > a).all())}
+        q2[kind] = {
+            "wins": int((b > a).sum()),
+            "mean_gain": float((b - a).mean()),
+            "relative_better": bool((b > a).all()),
+        }
 
     # Confusion matrices (seed 0, relative features): main model (GBM) and logistic regression.
     yte0 = test0["label"].to_numpy()
@@ -106,12 +128,19 @@ def main() -> None:
         wrong_k = np.flatnonzero(p_k != yte0)
         neigh = E.neighbor_labels(X_ref, ytr0, Xte0[cols].to_numpy()[wrong_k])
         amb = E.classify_errors(yte0[wrong_k], p_k[wrong_k], neigh)
-        error_kinds[kind] = {"n_errors": int(len(wrong_k)),
-                             **amb["kind"].value_counts(normalize=True).to_dict()}
-        pairs = (amb.groupby(["true", "pred"]).agg(n=("kind", "size"),
-                 model_error=("kind", lambda k: (k == "model_error").mean()),
-                 ambiguous=("kind", lambda k: (k == "ambiguous_label").mean()))
-                 .sort_values("n", ascending=False))
+        error_kinds[kind] = {
+            "n_errors": int(len(wrong_k)),
+            **amb["kind"].value_counts(normalize=True).to_dict(),
+        }
+        pairs = (
+            amb.groupby(["true", "pred"])
+            .agg(
+                n=("kind", "size"),
+                model_error=("kind", lambda k: (k == "model_error").mean()),
+                ambiguous=("kind", lambda k: (k == "ambiguous_label").mean()),
+            )
+            .sort_values("n", ascending=False)
+        )
         pairs.to_csv(OUT / f"error_pairs_seed0_{kind}.csv")
         if kind == "gbm":
             wrong = wrong_k
@@ -130,8 +159,14 @@ def main() -> None:
     proc.mkdir(parents=True, exist_ok=True)
     app.to_parquet(proc / "test_predictions_seed0.parquet", index=False)
 
-    out = {"cleaning": log, "q2": q2, "q3_error_kinds": overall, "n_errors_seed0": int(len(wrong)),
-           "q3_error_kinds_by_model": error_kinds, "runtime_s": round(time.time() - t0, 1)}
+    out = {
+        "cleaning": log,
+        "q2": q2,
+        "q3_error_kinds": overall,
+        "n_errors_seed0": int(len(wrong)),
+        "q3_error_kinds_by_model": error_kinds,
+        "runtime_s": round(time.time() - t0, 1),
+    }
     with open(OUT / "results.json", "w") as f:
         json.dump(out, f, indent=2, default=float)
     print(summary.round(4).to_string())

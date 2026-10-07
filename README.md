@@ -5,7 +5,7 @@
 ## At a glance
 
 - **Question:** Can MLB's pitch labels be recovered from ball flight for pitchers the model has never seen, and when the model disagrees with MLB, which one is wrong?
-- **Answer:** A plain logistic regression on pitcher-relative features recovers 85% of pitches for new pitchers (macro-F1 0.66). Of its errors, 64% sit where other pitchers' similar pitches carry the model's label: the label is ambiguous, not the model wrong.
+- **Answer:** A plain logistic regression on pitcher-relative features recovers 85% of pitches for new pitchers (macro-F1 0.66), and the same model scored 89% on 207 pitchers who debuted in the following season. Of its errors, 64% sit where other pitchers' similar pitches carry the model's label: the label is ambiguous, not the model wrong.
 - **Why it matters:** A pitch label is a pitcher's own naming decision. Models that use labels as inputs across pitchers (pitch splits, pitch-quality models) inherit that noise.
 - **Start here:** [Live app](https://pitch-types-are-relative.streamlit.app) · [two-page summary](reports/Pitch%20Types%20Are%20Relative%20-%20Summary.pdf)
 
@@ -65,6 +65,19 @@
 
 > **Reading the ambiguity check carefully:** a classifier tends to follow its local majority, so "neighbors agree with the model" is partly built in. The informative part is the other direction. For the best model, only about one error in five sits in a region where other pitchers would agree with MLB. Most of the rest are pitches whose name depends on who throws them, not on how they move. The trees' larger model-error share is consistent with the overfitting above.
 
+**5. It holds in the next season.** The 2025 logistic regression, with nothing refit, was scored on the full 2026 regular season (703,277 pitches from 720 pitchers; schedule-checked, 2,429 of 2,429 games).
+
+| 2026 pitchers | Pitchers | Accuracy | Macro-F1 | Log loss |
+|---|---|---|---|---|
+| **Never appeared in 2025** | 207 | **0.888** | 0.676 | 0.32 |
+| Returning from 2025 | 513 | 0.861 | 0.685 | 0.38 |
+| All | 720 | 0.865 | 0.686 | 0.37 |
+
+- **Accuracy rose, macro-F1 barely moved.** The new-pitcher group is likely heavier in fastball-centered relievers, which lifts accuracy without helping the rare classes. Macro-F1 (0.676 against 0.660 in 2025) is the fairer comparison, and it is about the same.
+- **The same classes fail:** knuckle curve (F1 about 0.27) and slurve (about 0.07) are weak again, while four-seamers, sinkers and changeups stay above 0.88.
+- **Labels did not drift much:** each pitch type's share of all pitches moved by under 1.3 points between seasons.
+- Not in the original plan: it was added after publication as a replication ([DEVIATIONS.md](DEVIATIONS.md)).
+
 ## Why this matters
 
 A pitch label is a pitcher's own naming decision, not a physical category. That's fine for describing an arsenal. It's a problem when labels are used as model inputs across pitchers (pitch-type splits, pitch-quality models). A slider for one pitcher can be another's cutter. Pitcher-relative physical descriptions, or clustering within each pitcher, are safer.
@@ -85,7 +98,7 @@ streamlit run app.py
 - **No label leakage.** The pitcher reference uses no labels and is computed separately within the training and test splits.
 - **Honest validation.** GroupShuffleSplit by pitcher, 5 repeats, with the training set subsampled to 250k pitches. Metrics are accuracy, macro-F1, log loss, per-class F1 and a pitcher-level "whole arsenal" rate.
 - **No hidden tuning on seen pitchers.** scikit-learn's boosted trees early-stop on a random 10% of rows by default. That would tune the model on pitchers it trains on, so it's switched off (and tested). The exploratory tuned version holds out whole pitchers instead.
-- **Tests (7).** CI runs all 7 on every push. `tests/` checks:
+- **Tests (9).** CI runs all 9 on every push. `tests/` checks:
   - left-hander mirroring and the arm-side-positive convention
   - cleaning merges, drops and logs correctly
   - relative features ignore labels and handle the 0°/360° spin-axis wrap
@@ -107,7 +120,7 @@ reports/              tables and figures
 ## Limitations
 
 - **The labels are the target, not ground truth.** MLB's labels come from its pitch-classification system, and pitchers name their own pitches. MLB can also revise labels after the fact, so a later download may differ slightly.
-- **Scope:** one season, and pitchers with fewer than 100 pitches are excluded.
+- **Scope:** two seasons (2025 for the analysis, 2026 as a replication), and pitchers with fewer than 100 pitches are excluded.
 - **Fragile reference:** the hardest-pitch reference assumes the fastest pitches are fastballs. That held for 722 of 723 pitchers here, but it can fail for pitchers who rarely throw a fastball, and it needs enough of a pitcher's pitches to be stable.
 - **Position players:** one position player (103 pitches, under 0.02% of the data) passes the 100-pitch filter. His 55 mph "curveballs" are kept as labelled.
 - **Rare classes:** slurves (0.5% of pitches) and knuckle curves (1.8%) are rare. Their low F1 partly reflects that, though the confusion matrix shows naming overlap with curveballs and sweepers is the bigger factor.
@@ -122,6 +135,8 @@ pip install -r requirements.txt
 python scripts/fetch_statcast.py --season 2025     # about 30 min, polite one-day requests
 python scripts/run_analysis.py                     # about 10 min on a laptop
 python scripts/make_figures.py
+python scripts/fetch_statcast.py --season 2026 --end 2026-10-04   # optional replication data
+python scripts/external_season.py                  # train on 2025, score 2026
 python scripts/data_checks.py                      # descriptive checks quoted above
 python scripts/exploratory_tuned_gbm.py            # optional, about 10 min
 pytest -q

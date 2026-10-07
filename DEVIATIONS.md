@@ -29,3 +29,7 @@ Every change made after the plan was frozen is logged here, dated, with its reas
 - **What:** `scripts/exploratory_tuned_gbm.py` uses the same 5 pitcher splits and training subsamples. It chooses the number of rounds by early stopping on 15% of the *training pitchers*, held out as a group.
 - **Result:** the trees stop at 53 ± 5 rounds and reach accuracy 0.840 ± 0.013 and macro-F1 0.649 ± 0.018. Logistic regression is still better in all 5 repeats on both metrics.
 - **Status:** exploratory and labelled as such. It does not replace the pre-specified GBM results.
+
+## Added after publication
+
+- **2026 replication (`scripts/external_season.py`).** Not in the analysis plan. The 2025 logistic regression was scored on the complete 2026 regular season to check that the result is not specific to one season. Pitchers who did not appear in 2025 are the headline group; returning pitchers are shown for contrast. New-pitcher accuracy (0.888) is higher than the 2025 held-out figure (0.849), while macro-F1 is about the same (0.676 against 0.660), so the gain in accuracy is read as a change in who the new pitchers are, not a better model.

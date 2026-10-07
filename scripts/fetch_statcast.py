@@ -5,6 +5,7 @@ daily requests stay well under the cap, and each day is checked against that cap
 download, the set of games is checked against MLB's official schedule (every final regular-season
 game must be present, and no others).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -23,10 +24,34 @@ import pandas as pd
 URL = "https://baseballsavant.mlb.com/statcast_search/csv"
 SCHEDULE = "https://statsapi.mlb.com/api/v1/schedule"
 FINAL_STATES = {"Final", "Completed Early", "Game Over"}
-KEEP = ["game_date", "game_pk", "at_bat_number", "pitch_number", "pitcher", "player_name",
-        "p_throws", "pitch_type", "release_speed", "release_spin_rate", "spin_axis",
-        "pfx_x", "pfx_z", "release_pos_x", "release_pos_z", "release_extension", "arm_angle",
-        "plate_x", "plate_z", "vx0", "vy0", "vz0", "ax", "ay", "az", "game_type"]
+KEEP = [
+    "game_date",
+    "game_pk",
+    "at_bat_number",
+    "pitch_number",
+    "pitcher",
+    "player_name",
+    "p_throws",
+    "pitch_type",
+    "release_speed",
+    "release_spin_rate",
+    "spin_axis",
+    "pfx_x",
+    "pfx_z",
+    "release_pos_x",
+    "release_pos_z",
+    "release_extension",
+    "arm_angle",
+    "plate_x",
+    "plate_z",
+    "vx0",
+    "vy0",
+    "vz0",
+    "ax",
+    "ay",
+    "az",
+    "game_type",
+]
 CAP = 25_000
 SSL = ssl.create_default_context(cafile=certifi.where())
 
@@ -44,8 +69,14 @@ def _get(url: str) -> str:
 
 
 def fetch_day(d: date) -> pd.DataFrame:
-    q = {"all": "true", "type": "details", "player_type": "pitcher", "hfGT": "R|",
-         "game_date_gt": d.isoformat(), "game_date_lt": d.isoformat()}
+    q = {
+        "all": "true",
+        "type": "details",
+        "player_type": "pitcher",
+        "hfGT": "R|",
+        "game_date_gt": d.isoformat(),
+        "game_date_lt": d.isoformat(),
+    }
     raw = _get(f"{URL}?{urlencode(q)}")
     if raw.lstrip().startswith("<"):
         # An HTML page is an error or rate-limit response, never "no games": fail loudly.
@@ -64,18 +95,25 @@ def fetch_day(d: date) -> pd.DataFrame:
 def official_final_games(season: int) -> set[int]:
     q = {"sportId": 1, "season": season, "gameType": "R"}
     sched = json.loads(_get(f"{SCHEDULE}?{urlencode(q)}"))
-    return {g["gamePk"] for day in sched["dates"] for g in day["games"]
-            if g["status"]["detailedState"] in FINAL_STATES}
+    return {
+        g["gamePk"]
+        for day in sched["dates"]
+        for g in day["games"]
+        if g["status"]["detailedState"] in FINAL_STATES
+    }
 
 
 def verify_complete(full: pd.DataFrame, season: int) -> None:
     want, have = official_final_games(season), set(full["game_pk"].unique())
     missing, extra = want - have, have - want
-    print(f"schedule check: {len(want)} final games, {len(have)} downloaded, "
-          f"{len(missing)} missing, {len(extra)} extra")
+    print(
+        f"schedule check: {len(want)} final games, {len(have)} downloaded, "
+        f"{len(missing)} missing, {len(extra)} extra"
+    )
     if missing or extra:
-        raise RuntimeError(f"incomplete download; missing e.g. {sorted(missing)[:5]}, "
-                           f"extra e.g. {sorted(extra)[:5]}")
+        raise RuntimeError(
+            f"incomplete download; missing e.g. {sorted(missing)[:5]}, extra e.g. {sorted(extra)[:5]}"
+        )
 
 
 def main() -> None:
@@ -97,8 +135,7 @@ def main() -> None:
             print(d, len(day), flush=True)
             time.sleep(1.0)
         d += timedelta(days=1)
-    full = pd.concat([pd.read_parquet(p) for p in sorted(out_dir.glob("*.parquet"))],
-                     ignore_index=True)
+    full = pd.concat([pd.read_parquet(p) for p in sorted(out_dir.glob("*.parquet"))], ignore_index=True)
     full = full[full["game_type"] == "R"]
     verify_complete(full, a.season)
     full.to_parquet(out_dir.parent / f"statcast_{a.season}.parquet", index=False)

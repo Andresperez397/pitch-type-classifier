@@ -1,4 +1,5 @@
 """Models and the label-ambiguity check (ANALYSIS_PLAN.md sections 4-5)."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -17,8 +18,9 @@ def make_model(kind: str):
         # Fixed settings from the plan. early_stopping=False matters: scikit-learn otherwise
         # turns on early stopping for n > 10,000 using a random 10% of *pitches*, which would
         # tune the number of trees on pitchers the model has already seen.
-        return HistGradientBoostingClassifier(max_depth=8, learning_rate=0.1, max_iter=300,
-                                              early_stopping=False, random_state=0)
+        return HistGradientBoostingClassifier(
+            max_depth=8, learning_rate=0.1, max_iter=300, early_stopping=False, random_state=0
+        )
     raise ValueError(f"unknown model kind: {kind}")
 
 
@@ -33,10 +35,10 @@ def classify_errors(y_true: np.ndarray, y_pred: np.ndarray, neighbor_labels: np.
     """
     share_true = (neighbor_labels == y_true[:, None]).mean(1)
     share_pred = (neighbor_labels == y_pred[:, None]).mean(1)
-    kind = np.select([share_true > 0.5, share_pred > 0.5], ["model_error", "ambiguous_label"],
-                     "mixed")
-    return pd.DataFrame({"true": y_true, "pred": y_pred, "share_true": share_true,
-                         "share_pred": share_pred, "kind": kind})
+    kind = np.select([share_true > 0.5, share_pred > 0.5], ["model_error", "ambiguous_label"], "mixed")
+    return pd.DataFrame(
+        {"true": y_true, "pred": y_pred, "share_true": share_true, "share_pred": share_pred, "kind": kind}
+    )
 
 
 def neighbor_labels(X_ref: np.ndarray, y_ref: np.ndarray, X_query: np.ndarray, k: int = 50) -> np.ndarray:
